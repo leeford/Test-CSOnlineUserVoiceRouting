@@ -7,7 +7,7 @@ Simply provide a dialed number and a user to see what Voice Routes would be used
     
 For more information, go to https://wp.me/p97Bkx-g5
     
-###### Example:
+Example:
 
 `.\Test-CSOnlineUserVoiceRouting.ps1 -DialedNumber +441234567890 -User user@domain.com`
 
