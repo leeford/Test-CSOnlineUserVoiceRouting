@@ -63,7 +63,7 @@ if (Get-Module -ListAvailable -Name SkypeOnlineConnector) {
 # Is a session already in place and is it "Opened"?
 if(!$global:PSSession -or $global:PSSession.State -ne "Opened") {
 
-    Write-Host "Creating PowerShell session to Skype Online..."
+    Write-Host "`nCreating PowerShell session to Skype Online..."
 
     # Create session
     $global:PSSession = New-CsOnlineSession
@@ -98,7 +98,7 @@ if ($UserReturned) {
     }
     # Get the Online Voice Routing Policy assigned to the user
     Write-Host "`nGetting assigned Online Voice Routing Policy for $User..."
-    $UserOnlineVoiceRoutingPolicy = (Get-CsOnlineUser -Identity $user).OnlineVoiceRoutingPolicy
+    $UserOnlineVoiceRoutingPolicy = ($UserReturned).OnlineVoiceRoutingPolicy
 
     if ($UserOnlineVoiceRoutingPolicy) {
 
