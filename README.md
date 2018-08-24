@@ -1,7 +1,7 @@
 # Test-CSOnlineUserVoiceRouting
 Test a user's Online Voice Routing Policy for Teams Direct Routing
 
-Using this script you can test a user's assigned Online Voice Routing Policy - this policy is used to decide how to route Direct Routing calls. 
+Using this script you can test a user's assigned Online Voice Routing Policy - this policy is used to decide how to route calls using Direct Routing. 
     
 Simply provide a dialed number and a user to see what Voice Routes would be used and in what order.
     
