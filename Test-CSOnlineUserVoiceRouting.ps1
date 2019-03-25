@@ -30,7 +30,8 @@
 param(
 
     [Parameter(mandatory=$true)][String]$User,
-    [Parameter(mandatory=$true)][String]$DialedNumber
+    [Parameter(mandatory=$true)][String]$DialedNumber,
+    [Parameter(mandatory=$false)][string]$OverrideAdminDomain
 
 )
 
@@ -65,8 +66,15 @@ if(!$global:PSSession -or $global:PSSession.State -ne "Opened") {
 
     Write-Host "`nCreating PowerShell session to Skype Online..."
 
-    # Create session
-    $global:PSSession = New-CsOnlineSession
+    if ($OverrideAdminDomain) {
+
+        $global:PSSession = New-CsOnlineSession -OverrideAdminDomain $OverrideAdminDomain
+
+    } else {
+
+        $global:PSSession = New-CsOnlineSession
+
+    }
     
     # Import Session
     Import-PSSession $global:PSSession -AllowClobber | Out-Null
