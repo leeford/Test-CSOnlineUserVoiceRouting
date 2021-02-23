@@ -29,14 +29,47 @@
 
 param(
 
-    [Parameter(mandatory=$true)][String]$User,
-    [Parameter(mandatory=$true)][String]$DialedNumber,
-    [Parameter(mandatory=$false)][string]$OverrideAdminDomain
+    [Parameter(mandatory = $true)][String]$User,
+    [Parameter(mandatory = $true)][String]$DialedNumber,
+    [Parameter(mandatory = $false)][string]$OverrideAdminDomain
 
 )
 
-$VoiceRoutes = @()
-$MatchedVoiceRoutes = @()
+function Check-ModuleInstalled {
+    param (
+
+        [Parameter (mandatory = $true)][String]$module,
+        [Parameter (mandatory = $true)][String]$moduleName
+        
+    )
+
+    # Do you have module installed?
+    Write-Host "`nChecking $moduleName installed..." -NoNewline
+
+    if (Get-Module -ListAvailable -Name $module) {
+    
+        Write-Host " INSTALLED" -ForegroundColor Green
+
+    }
+    else {
+
+        Write-Host " NOT INSTALLED" -ForegroundColor Red
+        
+        break
+
+    }
+    
+}
+function Check-ExistingPSSession {
+    param (
+        [Parameter (mandatory = $true)][string]$ComputerName
+    )
+    
+    $OpenSessions = Get-PSSession | Where-Object { $_.ComputerName -like $ComputerName -and $_.State -eq "Opened" }
+
+    return $OpenSessions
+
+}
 
 # Start
 Write-Host "`n----------------------------------------------------------------------------------------------
@@ -45,41 +78,38 @@ Write-Host "`n------------------------------------------------------------------
 
 Write-Host "`nChecking voice routing of dialed number $DialedNumber for $user" -ForegroundColor Yellow
 
-# Do you have Skype Online module installed?
-Write-Host "`nChecking Skype Online Module installed..."
+# Check Teams module installed
+Check-ModuleInstalled -module MicrosoftTeams -moduleName "Microsoft Teams module"
 
-if (Get-Module -ListAvailable -Name SkypeOnlineConnector) {
-    
-    Write-Host "Skype Online Module installed." -ForegroundColor Green
+$Connected = Check-ExistingPSSession -ComputerName "api.interfaces.records.teams.microsoft.com"
 
-} else {
+if (!$Connected) {
 
-    Write-Error -Message "Skype Online Module not installed, please install and try again."
-        
-    break
-
-}
-
-
-# Is a session already in place and is it "Opened"?
-if(!$global:PSSession -or $global:PSSession.State -ne "Opened") {
-
-    Write-Host "`nCreating PowerShell session to Skype Online..."
+    Write-Host "No existing PowerShell Session..."
 
     if ($OverrideAdminDomain) {
 
-        $global:PSSession = New-CsOnlineSession -OverrideAdminDomain $OverrideAdminDomain
-
-    } else {
-
-        $global:PSSession = New-CsOnlineSession
+        $CSSession = New-CsOnlineSession -OverrideAdminDomain $OverrideAdminDomain
 
     }
-    
+    else {
+
+        $CSSession = New-CsOnlineSession
+
+    }
+
     # Import Session
-    Import-PSSession $global:PSSession -AllowClobber | Out-Null
+    Import-PSSession $CSSession -AllowClobber | Out-Null
 
 }
+else {
+
+    Write-Host "Using existing PowerShell Session..."
+
+}
+
+$VoiceRoutes = @()
+$MatchedVoiceRoutes = @()
 
 # Check if user exists
 $UserReturned = Get-CSOnlineUser -Identity $User -ErrorAction SilentlyContinue
@@ -97,7 +127,8 @@ if ($UserReturned) {
 
         $NormalisedNumber = $NormalisedResult.TranslatedNumber
 
-    } else {
+    }
+    else {
 
         Write-Host "`rNo translation patterns matched"
 
@@ -118,14 +149,14 @@ if ($UserReturned) {
         # Loop through each PSTN Usage and get the Voice Routes
         foreach ($PSTNUsage in $PSTNUsages) {
     
-            $VoiceRoutes += Get-CsOnlineVoiceRoute | Where-Object {$_.OnlinePstnUsages -contains $PSTNUsage} | Select-Object *,@{label=”PSTNUsage”; Expression= {$PSTNUsage}}
+            $VoiceRoutes += Get-CsOnlineVoiceRoute | Where-Object { $_.OnlinePstnUsages -contains $PSTNUsage } | Select-Object *, @{label = ”PSTNUsage”; Expression = { $PSTNUsage } }
 
         }
 
         # Find PSTN first matching PSTN Usage
         Write-Host "`nFinding the first PSTN Usage with a Voice Route that matches $NormalisedNumber..."
 
-        $MatchedVoiceRoutes = $VoiceRoutes | Where-Object {$NormalisedNumber -match $_.NumberPattern}
+        $MatchedVoiceRoutes = $VoiceRoutes | Where-Object { $NormalisedNumber -match $_.NumberPattern }
 
         if ($MatchedVoiceRoutes) {
 
@@ -134,7 +165,7 @@ if ($UserReturned) {
             # Find Voice Routes that match normalised number and first matching PSTN Usage
             Write-Host "`rFirst Matching PSTN Usage: '$ChosenPSTNUsage'"
 
-            $MatchedVoiceRoutes = $MatchedVoiceRoutes | Where-Object {$_.PSTNUsage -eq $ChosenPSTNUsage}
+            $MatchedVoiceRoutes = $MatchedVoiceRoutes | Where-Object { $_.PSTNUsage -eq $ChosenPSTNUsage }
 
             Write-Host "`rFound $(@($MatchedVoiceRoutes).Count) Voice Route(s) with matching pattern in PSTN Usage '$ChosenPSTNUsage', listing in priority order..." -ForegroundColor Green
 
@@ -142,19 +173,22 @@ if ($UserReturned) {
 
             Write-Host "Note: Once a Voice Route that matches is found in a PSTN Usage, all other Voice Routes in other PSTN Usages will be ignored." -ForegroundColor Yellow
 
-        } else {
+        }
+        else {
 
             Write-Warning -Message "No Voice Route with matching pattern found, unable to route call using Direct Routing."
 
         }
 
-    } else {
+    }
+    else {
 
         Write-Warning -Message "No Online Voice Routing Policy assgined to $user."
 
     }
 
-} else {
+}
+else {
 
     Write-Warning -Message "$user not found on tenant."
 
