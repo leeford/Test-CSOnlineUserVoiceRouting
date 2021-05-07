@@ -10,11 +10,11 @@ Using this script you can test a user's assigned Online Voice Routing Policy - t
 
 Simply provide a dialed number and a user to see what Voice Routes would be used and in what order.
 
-For more information, go to <https://www.lee-ford.co.uk/test-csonlineuservoicerouting-test-a-users-online-voice-routing-policy-for-teams-direct-routing/>
-
 ## Usage
 
-> Before you can use this tool you need to ensure you have the Microsoft Teams PowerShell module installed - <https://docs.microsoft.com/en-us/microsoftteams/teams-powershell-install>
+> Before you can use this tool you need to ensure you have v2.3.0+ Microsoft Teams PowerShell module installed.
+> 
+> Installation and upgrade steps can be found at <https://docs.microsoft.com/en-us/microsoftteams/teams-powershell-install>
 
 ```.\Test-CSOnlineUserVoiceRouting.ps1 -DialedNumber +441234567890 -User user@domain.com```
 
