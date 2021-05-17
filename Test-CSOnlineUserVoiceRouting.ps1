@@ -87,19 +87,7 @@ if (!$Connected) {
 
     Write-Host "No existing PowerShell Session..."
 
-    if ($OverrideAdminDomain) {
-
-        $CSSession = New-CsOnlineSession -OverrideAdminDomain $OverrideAdminDomain
-
-    }
-    else {
-
-        $CSSession = New-CsOnlineSession
-
-    }
-
-    # Import Session
-    Import-PSSession $CSSession -AllowClobber | Out-Null
+    Connect-MicrosoftTeams
 
 }
 else {
