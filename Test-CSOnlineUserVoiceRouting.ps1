@@ -106,7 +106,8 @@ if ($UserReturned) {
 
     # Get effective dial plan for user, then test it and return normalised number (if needed) along with the matched rule
     Write-Host "`nGetting Effective Tenant Dial Plan for $user and translating number..."
-    $NormalisedResult = Get-CsEffectiveTenantDialPlan -Identity $user | Test-CsEffectiveTenantDialPlan -DialedNumber $DialedNumber
+    $EffectiveDialPlan = Get-CsEffectiveTenantDialPlan -Identity $user
+    $NormalisedResult = $EffectiveDialPlan | Test-CsEffectiveTenantDialPlan -DialedNumber $DialedNumber
 
     if ($NormalisedResult.TranslatedNumber) {
 
@@ -125,7 +126,7 @@ if ($UserReturned) {
     }
     # Get the Online Voice Routing Policy assigned to the user
     Write-Host "`nGetting assigned Online Voice Routing Policy for $User..."
-    $UserOnlineVoiceRoutingPolicy = ($UserReturned).OnlineVoiceRoutingPolicy
+    [string]$UserOnlineVoiceRoutingPolicy = ($UserReturned).OnlineVoiceRoutingPolicy
 
     if ($UserOnlineVoiceRoutingPolicy) {
 
