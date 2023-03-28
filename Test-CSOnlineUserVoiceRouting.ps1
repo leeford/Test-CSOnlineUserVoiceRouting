@@ -1,4 +1,4 @@
-﻿<#
+<#
 
 .SYNOPSIS
  
@@ -60,15 +60,12 @@ function Check-ModuleInstalled {
     }
     
 }
-function Check-ExistingPSSession {
-    param (
-        [Parameter (mandatory = $true)][string]$ComputerName
-    )
-    
-    $OpenSessions = Get-PSSession | Where-Object { $_.ComputerName -like $ComputerName -and $_.State -eq "Opened" }
 
-    return $OpenSessions
-
+function Test-TeamsConnection {
+    if(-not((Get-Command Get-CsTeamsCallingPolicy -ErrorAction "SilentlyContinue") -and (Get-CsTeamsCallingPolicy -ErrorAction "SilentlyContinue"))){
+        return $false
+    }
+    return $true
 }
 
 # Start
@@ -81,14 +78,10 @@ Write-Host "`nChecking voice routing of dialed number $DialedNumber for $user" -
 # Check Teams module installed
 Check-ModuleInstalled -module MicrosoftTeams -moduleName "Microsoft Teams module"
 
-$Connected = Check-ExistingPSSession -ComputerName "api.interfaces.records.teams.microsoft.com"
-
-if (!$Connected) {
-
+if (-not(Test-TeamsConnection)) {
     Write-Host "No existing PowerShell Session..."
 
     Connect-MicrosoftTeams
-
 }
 else {
 
