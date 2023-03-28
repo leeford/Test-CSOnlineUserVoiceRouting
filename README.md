@@ -12,7 +12,7 @@ Simply provide a dialed number and a user to see what Voice Routes would be used
 
 ## Usage
 
-> Before you can use this tool you need to ensure you have **v2.5.0+** Microsoft Teams PowerShell module installed.
+> Before you can use this tool you need to ensure you have **v4.9.3+** Microsoft Teams PowerShell module installed.
 > 
 > Installation and upgrade steps can be found at <https://docs.microsoft.com/en-us/microsoftteams/teams-powershell-install>
 
