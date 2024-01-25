@@ -119,7 +119,7 @@ if ($UserReturned) {
     }
     # Get the Online Voice Routing Policy assigned to the user
     Write-Host "`nGetting assigned Online Voice Routing Policy for $User..."
-    [string]$UserOnlineVoiceRoutingPolicy = ($UserReturned).OnlineVoiceRoutingPolicy
+    [string]$UserOnlineVoiceRoutingPolicy = (Get-CsUserPolicyAssignment -Identity $User -PolicyType OnlineVoiceRoutingPolicy).PolicyName
 
     if ($UserOnlineVoiceRoutingPolicy) {
 
