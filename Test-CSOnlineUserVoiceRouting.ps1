@@ -100,7 +100,7 @@ if ($UserReturned) {
     # Get effective dial plan for user, then test it and return normalised number (if needed) along with the matched rule
     Write-Host "`nGetting Effective Tenant Dial Plan for $user and translating number..."
     $EffectiveDialPlan = Get-CsEffectiveTenantDialPlan -Identity $user
-    $NormalisedResult = $EffectiveDialPlan | Test-CsEffectiveTenantDialPlan -DialedNumber $DialedNumber
+    $NormalisedResult = Test-CsEffectiveTenantDialPlan -DialedNumber $DialedNumber
 
     if ($NormalisedResult.TranslatedNumber) {
 
